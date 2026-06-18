@@ -1,0 +1,39 @@
+
+<!-- Standalone MJCF wrapping the serial arm subtree (mirror of scene_teleop arm). Prefer scene_teleop.xml for simulation. -->
+
+<mujoco model="five_dof_arm_stub">
+  <compiler angle="radian" eulerseq="xyz" autolimits="true"/>
+
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+
+  <worldbody>
+    <light directional="true" diffuse="0.9 0.9 0.9" pos="1 3 8" dir="-1 -3 -8"/>
+    <geom name="stub_floor" type="plane" size="3 3 0.05" rgba="0.93 0.93 0.93 1"/>
+    <!-- Arm definition aligned with scene_teleop robot_root subtree — keep lengths consistent with robot_kinematics.yaml -->
+    <body name="robot_root" pos="0 0 0.785">
+      <geom name="base_plate" type="cylinder" pos="0 0 0.02" size="0.065 0.02" rgba="0.35 0.35 0.38 1"/>
+      <body name="link_yaw" pos="0 0 0.035">
+        <joint name="jnt1_base_z" type="hinge" axis="0 0 1" range="-2.793 2.793" damping="25" armature="0.06"/>
+        <geom name="g_yaw" type="capsule" fromto="0 0 0 0 0 0.085" size="0.042" rgba="0.62 0.62 0.66 1"/>
+        <body name="shoulder_yaw" pos="0 0 0.088">
+          <joint name="jnt2_shoulder_y" type="hinge" axis="0 1 0" range="-1.571 1.571" damping="20" armature="0.04"/>
+          <geom name="upper_arm" type="capsule" fromto="0 0 0 0.22 0 0" size="0.035" rgba="0.15 0.45 0.85 1"/>
+          <body name="elbow_hub" pos="0.22 0 0">
+            <joint name="jnt3_elbow_y" type="hinge" axis="0 1 0" range="-1.571 1.571" damping="14" armature="0.03"/>
+            <geom name="forearm" type="capsule" fromto="0 0 0 0.22 0 0" size="0.03" rgba="0.92 0.55 0.12 1"/>
+            <body name="wrist_pitch_hub" pos="0.22 0 0">
+              <joint name="jnt4_wrist_y" type="hinge" axis="0 1 0" range="-2.094 2.094" damping="12" armature="0.02"/>
+              <geom name="wrist_geom" type="capsule" fromto="0 0 0 0.065 0 0" size="0.024" rgba="0.82 0.82 0.82 1"/>
+              <body name="wrist_roll" pos="0.065 0 0">
+                <joint name="jnt5_gripper_z" type="hinge" axis="0 0 1" range="-3.142 3.142" damping="10" armature="0.02"/>
+                <geom name="finger_l" type="box" pos="0.04 0.03 0" size="0.035 0.012 0.018" rgba="0.12 0.12 0.12 1"/>
+                <geom name="finger_r" type="box" pos="0.04 -0.03 0" size="0.035 0.012 0.018" rgba="0.12 0.12 0.12 1"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+</mujoco>

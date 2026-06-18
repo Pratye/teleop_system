@@ -1,0 +1,93 @@
+# Robot kinematics configuration — update link lengths to match your physical arm.
+robot:
+  name: five_dof_planar_serial
+  #
+  # Link lengths along the kinematic chain (metres):
+  #   L1: base plate → shoulder pivot (vertical riser, not used directly in IK)
+  #   L2: shoulder pivot → elbow pivot  (upper arm)
+  #   L3: elbow pivot   → wrist pitch   (forearm)
+  #   L4: wrist pitch   → tool tip      (wrist extension + gripper mount)
+  lengths:
+    L1: 0.12
+    L2: 0.22
+    L3: 0.22
+    L4: 0.06
+
+  # Hard joint limits (degrees).
+  # Joint mapping:
+  #   J1  j1_base_z      – base yaw       (rotation around Z-axis)
+  #   J2  j2_shoulder_y  – shoulder pitch (rotation around Y-axis)
+  #   J3  j3_elbow_y     – elbow pitch    (rotation around Y-axis)
+  #   J4  j4_wrist_y     – wrist pitch    (rotation around Y-axis)
+  #   J5  j5_gripper_x   – gripper roll   (rotation around X-axis)
+  #
+  # J2 range: -30° puts arm ~30° below horizontal (near table surface).
+  #           +120° allows overhead reach.  J2 = 0° = arm horizontal.
+  # J3 range: -150° = deep elbow bend (forearm folded back).
+  #           +10°  = slight over-extension (avoid hyperextension).
+  joint_limits_deg:
+    j1_base_z:     [-120, 120]
+    j2_shoulder_y: [ -30, 120]
+    j3_elbow_y:    [-150,  10]
+    j4_wrist_y:    [-120, 120]
+    j5_gripper_x:  [-180, 180]
+
+# Extrinsic transform: homogeneous 4×4 from camera OpenCV frame to robot base frame.
+#
+# Camera OpenCV convention:   x = right,   y = DOWN,   z = forward (into scene)
+# Robot base convention:      x = forward, y = left,   z = UP
+#
+# Mapping used here:
+#   x_robot =  z_cam           (depth → reach forward)
+#   y_robot = -x_cam           (camera right → robot right = -left)
+#   z_robot = -y_cam + 0.25    (camera DOWN → robot UP; 0.25 m ≈ mid-image height)
+#
+#   Hand moves UP   in frame → z_robot increases → arm rises  ✓
+#   Hand moves DOWN          → z_robot decreases (clamped at table) ✓
+camera_to_base_matrix:
+  - [ 0.0,  0.0, 1.0,  0.0]
+  - [-1.0,  0.0, 0.0,  0.0]
+  - [ 0.0, -1.0, 0.0,  0.25]
+  - [ 0.0,  0.0, 0.0,  1.0]
+
+# IK settings
+ik:
+  # "negative" → elbow bends on the opposite side of the lateral offset (typical desktop arm).
+  # "positive" → elbow above the horizontal (overhead reach posture).
+  elbow_preference: "negative"
+
+  # Temporal low-pass filter: 0 = frozen, 1 = raw angles (no smoothing).
+  smoothing_alpha: 0.15
+
+  # J4 (wrist pitch) mode:
+  #   "human"   – track the forearm elevation relative to J2+J3 (natural, default)
+  #   "down"    – always point the end-effector straight down (for pick-and-place)
+  #   "neutral" – lock J4 = 0
+  j4_mode: "human"
+
+  # Hard limit on per-call joint angle change (degrees).
+  # Prevents sudden jumps when landmark detection recovers from occlusion
+  # or atan2 wraps across the ±180° boundary.  Tune upward if motion is laggy.
+  max_joint_vel_deg: 30.0
+
+  # Scale factor applied to the raw J1 (base yaw) angle.
+  # < 1.0 reduces rotational sensitivity for small forward-reach positions.
+  # If J1 is over-rotating (arm swings too far left/right), lower this value.
+  j1_scale: 0.7
+
+# Workspace safety limits (robot-base frame, +Z up from the table surface).
+workspace:
+  # Wrist cannot be commanded below this absolute Z height.
+  # Set to the table height + a small safety margin.
+  # 0.0 m = base of robot = table surface.  Add ~5 cm clearance.
+  min_wrist_z_m: 0.05
+
+  # Additional margin ontop of min_wrist_z used for FK Z-clamping.
+  z_margin_m: 0.02
+
+  # Horizontal reach cap — prevents IK singularities near full extension.
+  # L2 + L3 + L4 = 0.50 m; leave ~6 cm margin.
+  max_reach_m: 0.44
+
+# Optional RBF mapper — fill when using RBFMapper with recorded samples.
+calibration_rbfs: []

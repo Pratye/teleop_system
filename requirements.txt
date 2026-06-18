@@ -1,0 +1,31 @@
+# Monocular teleop stack — Python 3.10+ (arm64 macOS recommended for MPS)
+#
+# PyTorch WITH MPS: do NOT use the CPU-only index. Install from pytorch.org:
+#   Visit https://pytorch.org/get-started/locally/
+#   macOS / Pip / Python 3.x / Compute Platform: MPS → copy the pip command.
+# Then uncomment or pin matching torch versions below once installed.
+torch>=2.0
+torchvision>=0.15
+
+opencv-python-headless>=4.8
+mediapipe>=0.10.11
+numpy>=1.23
+PyYAML>=6.0
+
+# Simulation (prefer native mujoco bindings on Apple Silicon; do not require mujoco-py)
+mujoco>=2.3.0
+robosuite>=1.4
+
+pyserial>=3.5
+
+# --- Depth Pro (Apple ml-depth-pro) — install SEPARATELY ---
+# Clone and editable install so `import depth_pro` works:
+#   git clone https://github.com/apple/ml-depth-pro
+#   cd ml-depth-pro
+#   pip install -e .
+# Download checkpoint depth_pro.pt (see README in that repo).
+# Depth Anything V2 Torch (*.pth, optional — faster than HF / no transformers download):
+#   git clone https://github.com/DepthAnything/Depth-Anything-V2.git teleop_system/third_party/Depth-Anything-V2
+#   Then pass --depth-da-pth /path/to/depth_anything_v2_vits.pth with --depth-model depth_anything
+transformers>=4.40
+accelerate>=0.26
