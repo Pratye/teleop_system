@@ -2,6 +2,10 @@
 
 A monocular camera-based teleoperation system for controlling a 5-DOF robotic arm using hand pose estimation and depth sensing. The operator's arm movements, captured by a webcam or iPhone, are mapped in real time to joint angles on either a physical robot (Arduino + servos) or a MuJoCo physics simulation.
 
+| Robotic Arm | Gripper |
+|:-----------:|:-------:|
+| ![Robotic Arm](images/robotic_arm.png) | ![Gripper](images/gripper.png) |
+
 ---
 
 ## How It Works
